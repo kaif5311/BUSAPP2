@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BusTicket - Online Bus Ticket Booking System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="logo">Bus<span>Ticket</span></a>
+        <div class="nav-links" id="nav-links">
+            <!-- Navigation items will be dynamically updated based on auth status -->
+            <a href="login.html" class="btn btn-outline" id="nav-login-btn">Login</a>
+            <a href="register.html" class="btn btn-primary" id="nav-register-btn">Register</a>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <h1>India's No. 1 Online Bus Ticket Booking Site</h1>
+        <p>Book bus tickets from the comfort of your home. Search, select, and travel safely.</p>
+        
+        <div class="search-container" id="search-form">
+            <div class="search-input-group">
+                <i class="fas fa-bus"></i>
+                <div class="input-content">
+                    <label>From</label>
+                    <input type="text" id="source" placeholder="e.g. Mumbai" list="cities-list" required>
+                </div>
+            </div>
+            
+            <div class="swap-icon" onclick="swapCities()">
+                <i class="fas fa-exchange-alt"></i>
+            </div>
+
+            <div class="search-input-group">
+                <i class="fas fa-bus"></i>
+                <div class="input-content">
+                    <label>To</label>
+                    <input type="text" id="destination" placeholder="e.g. Pune" list="cities-list" required>
+                </div>
+            </div>
+            
+            <div class="search-input-group">
+                <i class="far fa-calendar-alt"></i>
+                <div class="input-content">
+                    <label>Date</label>
+                    <input type="date" id="travel-date" required>
+                </div>
+            </div>
+            
+            <datalist id="cities-list"></datalist>
+            <button class="btn btn-primary search-btn" onclick="searchBuses()">SEARCH BUSES</button>
+        </div>
+    </section>
+
+    <section class="results-section" id="results-section" style="display: none;">
+        <div class="results-header">
+            <h2 id="results-title">Available Buses</h2>
+            <span id="results-count"></span>
+        </div>
+        <div id="bus-list">
+            <!-- Bus cards will be generated here -->
+        </div>
+    </section>
+
+    <!-- Checkout Modal -->
+    <div id="checkout-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <form id="checkout-form" class="modal-form">
+                <input type="hidden" id="modal-schedule-id">
+                
+                <div id="dynamic-passenger-forms">
+                    <!-- Passenger forms will be injected here via JS -->
+                </div>
+                
+                <hr style="margin: 1.5rem 0; border: 0; border-top: 1px solid var(--border-color);">
+                <h2>Payment Details</h2>
+                
+                <div class="form-group payment-methods">
+                    <label style="display: inline-block; margin-right: 1rem; cursor: pointer;">
+                        <input type="radio" name="payment-method" value="card" checked onchange="togglePaymentMethod('card')"> Credit/Debit Card
+                    </label>
+                    <label style="display: inline-block; cursor: pointer;">
+                        <input type="radio" name="payment-method" value="upi" onchange="togglePaymentMethod('upi')"> UPI
+                    </label>
+                </div>
+
+                <div id="payment-card-details">
+                    <div class="form-group">
+                        <label>Card Number</label>
+                        <input type="text" placeholder="1234 5678 9101 1121" required>
+                    </div>
+                    <div class="form-group" style="display: flex; gap: 1rem;">
+                        <div style="flex: 1;">
+                            <label>Expiry Date</label>
+                            <input type="text" placeholder="MM/YY" required>
+                        </div>
+                        <div style="flex: 1;">
+                            <label>CVV</label>
+                            <input type="password" placeholder="123" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="payment-upi-details" style="display: none;">
+                    <div class="form-group">
+                        <label>UPI ID</label>
+                        <input type="text" placeholder="example@upi">
+                    </div>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Open your UPI app on your phone after clicking Pay.</p>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;" id="pay-btn">Pay & Book Ticket</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

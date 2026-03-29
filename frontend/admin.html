@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - BusTicket</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .admin-grid {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 2rem;
+            min-height: calc(100vh - 80px);
+        }
+        
+        .action-btns {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .action-btns button {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.9rem;
+        }
+        
+        .sidebar {
+            background: var(--white);
+            padding: 2rem;
+            border-right: 1px solid var(--border-color);
+        }
+        
+        .sidebar ul li {
+            margin-bottom: 1rem;
+        }
+        
+        .sidebar ul li a {
+            display: block;
+            padding: 0.8rem;
+            border-radius: 4px;
+            color: var(--text-dark);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .sidebar ul li a:hover, .sidebar ul li a.active {
+            background-color: var(--bg-light);
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .main-content {
+            padding: 2rem;
+        }
+
+        .admin-panel {
+            display: none;
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .admin-panel.active {
+            display: block;
+            animation: fadeInUp 0.4s ease;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        th {
+            background-color: var(--bg-light);
+            font-weight: 600;
+        }
+        
+        /* Form row styling */
+        .admin-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+            align-items: end;
+            background: var(--bg-light);
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+        
+        .admin-form .form-group { margin-bottom: 0; }
+        .admin-form input, .admin-form select {
+            width: 100%; padding: 0.8rem; border: 1px solid var(--border-color); border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="logo">BusTicket <span>Admin</span></a>
+        <div class="nav-links">
+            <button class="btn btn-outline" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+
+    <div class="admin-grid">
+        <div class="sidebar">
+            <ul>
+                <li><a class="active" onclick="switchAdminTab('bookings')"><i class="fas fa-ticket-alt"></i> All Bookings</a></li>
+                <li><a onclick="switchAdminTab('buses')"><i class="fas fa-bus"></i> Manage Buses</a></li>
+                <li><a onclick="switchAdminTab('routes')"><i class="fas fa-route"></i> Manage Routes</a></li>
+                <li><a onclick="switchAdminTab('schedules')"><i class="far fa-calendar-alt"></i> Manage Schedules</a></li>
+            </ul>
+        </div>
+        
+        <div class="main-content">
+            <!-- Bookings Panel -->
+            <div id="panel-bookings" class="admin-panel active">
+                <h2>All Bookings</h2>
+                <div style="overflow-x:auto;">
+                    <table id="admin-bookings-table">
+                        <thead>
+                            <tr>
+                                <th>Booking ID</th>
+                                <th>User ID</th>
+                                <th>Schedule ID</th>
+                                <th>Travel Date</th>
+                                <th>Seat No</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Buses Panel -->
+            <div id="panel-buses" class="admin-panel">
+                <h2>Manage Buses</h2>
+                <form id="add-bus-form" class="admin-form">
+                    <div class="form-group">
+                        <label>Bus Name</label>
+                        <input type="text" id="bus-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Type</label>
+                        <select id="bus-type">
+                            <option value="AC Sleeper">AC Sleeper</option>
+                            <option value="Non-AC Sleeper">Non-AC Sleeper</option>
+                            <option value="AC Seater">AC Seater</option>
+                            <option value="Non-AC Seater">Non-AC Seater</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Total Seats</label>
+                        <input type="number" id="bus-seats" value="40" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Bus</button>
+                </form>
+                <table>
+                    <thead><tr><th>ID</th><th>Name</th><th>Type</th><th>Total Seats</th><th>Actions</th></tr></thead>
+                    <tbody id="admin-buses-tbody"></tbody>
+                </table>
+            </div>
+
+            <!-- Routes Panel -->
+            <div id="panel-routes" class="admin-panel">
+                <h2>Manage Routes</h2>
+                <form id="add-route-form" class="admin-form">
+                    <div class="form-group"><label>Source</label><input type="text" id="route-source" required></div>
+                    <div class="form-group"><label>Destination</label><input type="text" id="route-dest" required></div>
+                    <div class="form-group"><label>Duration</label><input type="text" id="route-dur" placeholder="e.g. 5 hours" required></div>
+                    <button type="submit" class="btn btn-primary">Add Route</button>
+                </form>
+                <table>
+                    <thead><tr><th>ID</th><th>Source</th><th>Destination</th><th>Duration</th><th>Actions</th></tr></thead>
+                    <tbody id="admin-routes-tbody"></tbody>
+                </table>
+            </div>
+
+            <!-- Schedules Panel -->
+            <div id="panel-schedules" class="admin-panel">
+                <h2>Manage Schedules</h2>
+                <form id="add-schedule-form" class="admin-form">
+                    <div class="form-group"><label>Bus ID</label><input type="number" id="sch-bus-id" required></div>
+                    <div class="form-group"><label>Route ID</label><input type="number" id="sch-route-id" required></div>
+                    <div class="form-group"><label>Depart</label><input type="time" id="sch-dept" required></div>
+                    <div class="form-group"><label>Arrive</label><input type="time" id="sch-arr" required></div>
+                    <div class="form-group"><label>Price (₹)</label><input type="number" id="sch-price" required></div>
+                    <button type="submit" class="btn btn-primary">Add Schedule</button>
+                </form>
+                <table>
+                    <thead><tr><th>ID</th><th>Bus ID</th><th>Route ID</th><th>Depart</th><th>Arrive</th><th>Price</th><th>Actions</th></tr></thead>
+                    <tbody id="admin-schedules-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Bus Modal -->
+    <div id="edit-bus-modal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <span class="close" onclick="closeEditModal('edit-bus-modal')">&times;</span>
+            <h2 style="margin-bottom: 1.5rem;">Edit Bus</h2>
+            <form id="edit-bus-form" class="modal-form">
+                <input type="hidden" id="edit-bus-id">
+                <div class="form-group">
+                    <label>Bus Name</label>
+                    <input type="text" id="edit-bus-name" required>
+                </div>
+                <div class="form-group">
+                    <label>Type</label>
+                    <select id="edit-bus-type">
+                        <option value="AC Sleeper">AC Sleeper</option>
+                        <option value="Non-AC Sleeper">Non-AC Sleeper</option>
+                        <option value="AC Seater">AC Seater</option>
+                        <option value="Non-AC Seater">Non-AC Seater</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Total Seats</label>
+                    <input type="number" id="edit-bus-seats" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Route Modal -->
+    <div id="edit-route-modal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <span class="close" onclick="closeEditModal('edit-route-modal')">&times;</span>
+            <h2 style="margin-bottom: 1.5rem;">Edit Route</h2>
+            <form id="edit-route-form" class="modal-form">
+                <input type="hidden" id="edit-route-id">
+                <div class="form-group"><label>Source</label><input type="text" id="edit-route-source" required></div>
+                <div class="form-group"><label>Destination</label><input type="text" id="edit-route-dest" required></div>
+                <div class="form-group"><label>Duration</label><input type="text" id="edit-route-dur" placeholder="e.g. 5 hours" required></div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Schedule Modal -->
+    <div id="edit-schedule-modal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <span class="close" onclick="closeEditModal('edit-schedule-modal')">&times;</span>
+            <h2 style="margin-bottom: 1.5rem;">Edit Schedule</h2>
+            <form id="edit-schedule-form" class="modal-form">
+                <input type="hidden" id="edit-schedule-id">
+                <div class="form-group"><label>Bus ID</label><input type="number" id="edit-sch-bus-id" required></div>
+                <div class="form-group"><label>Route ID</label><input type="number" id="edit-sch-route-id" required></div>
+                <div class="form-group"><label>Depart</label><input type="time" id="edit-sch-dept" required></div>
+                <div class="form-group"><label>Arrive</label><input type="time" id="edit-sch-arr" required></div>
+                <div class="form-group"><label>Price (₹)</label><input type="number" id="edit-sch-price" required></div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!isAdmin()) {
+                window.location.href = 'index.html';
+                return;
+            }
+            loadAdminData();
+        });
+
+        function switchAdminTab(tab) {
+            document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+            document.getElementById(`panel-${tab}`).classList.add('active');
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>
